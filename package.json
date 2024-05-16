@@ -1,0 +1,46 @@
+{
+  "name": "video-player-electron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [],
+  "author": "kiry665",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^30.0.4"
+  },
+  "dependencies": {
+    "electron-prompt": "^1.7.0",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
+    "video.js": "^8.12.0",
+    "videojs-youtube": "^3.0.1"
+  },
+  "build": {
+    "appId": "com.example.my-electron-app",
+    "productName": "My Electron App",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "index.js",
+      "index.css",
+      "SocketServer.js",
+      "SocketClient.js",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
+  }
+}
