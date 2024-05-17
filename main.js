@@ -10,11 +10,11 @@ const prompt = require('electron-prompt');
 
 settings.configure({ fileName: 'settings.json' });
 
-if (!settings.has('video_server')) {
+if (!settings.hasSync('video_server')) {
   settings.set('video_server', 'http://localhost:3001');
   console.log('Установлено значение по умолчанию для video_server');
 }
-if(!settings.has('socket_server')){
+if(!settings.hasSync('socket_server')){
   settings.set('socket_server', 'http://localhost:3000');
   console.log('Установлено значение по умолчанию для socket_server');
 }
@@ -131,12 +131,12 @@ function createWindow() {
                 title: 'Введите ссылку',
                 label: 'Адрес сервера с видео',
                 type: 'input',
+                height: 200,
                 value: settings.getSync('video_server'),
               }).then((r) => {
                 if (r === null) {
-                  console.log('Ссылка не введена');
+                  
                 } else {
-                  console.log('Введенная ссылка:', r);
                   settings.set('video_server', r);
                 }
               }).catch(console.error);
@@ -149,12 +149,12 @@ function createWindow() {
                 title: 'Введите ссылку',
                 label: 'Адрес сервера с сокетом',
                 type: 'input',
+                height: 200,
                 value: settings.getSync('socket_server'),
               }).then((r) => {
                 if (r === null) {
-                  console.log('Ссылка не введена');
+                  
                 } else {
-                  console.log('Введенная ссылка:', r);
                   settings.set('socket_server', r);
                 }
               }).catch(console.error);
@@ -170,18 +170,6 @@ function createWindow() {
             click: () => {
                 win.webContents.openDevTools();
             }  
-          },
-          {
-            label: 'Внешний плей',
-            click: () => {
-              win.webContents.send('video-play');
-            }
-          },
-          {
-            label: 'Внешний пауза',
-            click: () => {
-              win.webContents.send('video-pause');
-            }
           }
       ]
   }

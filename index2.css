@@ -1,0 +1,19 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center; /* Центрируем содержимое по горизонтали */
+  }
+  
+  #mediaSelect {
+    width: 95%; /* Занимает всю доступную ширину */
+    height: calc(100vh - 60px); /* Высота будет равна высоте окна минус 100px для отступа от кнопок */
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding: 5px; /* Добавим небольшие внутренние отступы для красоты */
+  }
+  
+  button {
+    display: inline-block; /* Размещаем кнопки в одной линии */
+    margin: 5px;
+  }
