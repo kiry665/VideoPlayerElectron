@@ -19,192 +19,197 @@ if(!settings.has('socket_server')){
   console.log('Установлено значение по умолчанию для socket_server');
 }
 
-let video_server;
-settings.get('video_server').then(result => {
-  video_server = result;
-});
-
-let socket_server;
-settings.get('socket_server').then(result => {
-  socket_server = result;
-});
-
 let win;
 
 function createWindow() {
 
-    win = new BrowserWindow({ 
-        width: 800, 
-        height: 600,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false, // очень важная хрень!!!
-            enableRemoteModule: true
-        }
-    });
+  win = new BrowserWindow({ 
+      width: 800, 
+      height: 600,
+      webPreferences: {
+          nodeIntegration: true,
+          contextIsolation: false, // очень важная хрень!!!
+          enableRemoteModule: true
+      }
+  });
 
-    win.loadFile('index.html');
+  win.loadFile('index.html');
 
-    const menuTemplate = [
-        {
-          label: 'Файл',
-          submenu: [
-            { 
-              label: 'Открыть файл с компьютера',
-              click: () => {
-                dialog.showOpenDialog(win, {
-                  properties: ['openFile'],
-                  filters: [{ name: 'Видеофайлы', extensions: ['mp4', 'avi', 'mkv'] }]
-                }).then(result => {
-                  if (!result.canceled && result.filePaths.length > 0) {
-                    win.webContents.send('opened-file', result.filePaths[0]);
-                  }
-                }).catch(err => {
-                  console.error(err);
-                });
-              }
-            },
-            {
-              label: 'Открыть файл с сервера',
-              click: () => {
-                createChildWindow();
-              }
-            },
-            { 
-              label: 'Закрыть файл',
-              click: () => {
-                win.webContents.send('reset-player')
-              } 
-            },
-            { type: 'separator' },
-            { label: 'Выход', role: 'quit' }
-          ]
-        },
-        {
-          label: 'Плеер',
-          submenu: [
-            {
-              label: 'Плей/Пауза',
-              accelerator: 'Space',
-              click: () =>{
-                win.webContents.send('video-toggle');
-              }
-            },
-            {
-              label: 'Вперёд',
-              accelerator: 'Right',
-              click: () => {
-                win.webContents.send('video-forward');
-                sendMessage('forward');
-              }
-            },
-            {
-              label: 'Назад',
-              accelerator: 'Left',
-              click: () => {
-                win.webContents.send('video-backward');
-                sendMessage('backward');
-              }
-            },
-            {type: 'separator'},
-            {
-              label: 'Полноэкранный режим',
-              accelerator: 'f',
-              click: () => {
-                console.log('full');
-                win.webContents.send('videoscreen-toggle');
-              }
+  const menuTemplate = [
+  {
+    label: 'Файл',
+    submenu: [
+      { 
+        label: 'Открыть файл с компьютера',
+        click: () => {
+          dialog.showOpenDialog(win, {
+            properties: ['openFile'],
+            filters: [{ name: 'Видеофайлы', extensions: ['mp4', 'avi', 'mkv'] }]
+          }).then(result => {
+            if (!result.canceled && result.filePaths.length > 0) {
+              win.webContents.send('opened-file', result.filePaths[0]);
             }
-          ]
-        },
-        {
-            label: 'Комната',
-            submenu:[
-                {
-                  label: 'Создать комнату',
-                  click: () => {
-                    initServer();
-                  }
-                },
-                {
-                  label: 'Подключится к комнате',
-                  click: () => {
-                    initClient(win, socket_server);
-                  }
-                },
-                {type: 'separator'},
-                {
-                  label: 'Адрес сервера с видео',
-                  click: () => {
-                    prompt({
-                      title: 'Введите ссылку',
-                      label: 'Ссылка:',
-                      type: 'input',
-                      value: video_server,
-                    }).then((r) => {
-                      if (r === null) {
-                        console.log('Ссылка не введена');
-                      } else {
-                        console.log('Введенная ссылка:', r);
-                        settings.set('video_server', r);
-                      }
-                    }).catch(console.error);
-                  }
-                },
-                {
-                  label: 'Адрес сервера с сокетом',
-                  click: () => {
-                    prompt({
-                      title: 'Введите ссылку',
-                      label: 'Ссылка:',
-                      type: 'input',
-                      value: socket_server,
-                    }).then((r) => {
-                      if (r === null) {
-                        console.log('Ссылка не введена');
-                      } else {
-                        console.log('Введенная ссылка:', r);
-                        settings.set('socket_server', r);
-                      }
-                    }).catch(console.error);
-                  }
-                }
-            ]
-        },
-        {
-            label: 'Разработка',
-            submenu:[
-                {
-                  label: 'Показать консоль',
-                  click: () => {
-                      win.webContents.openDevTools();
-                  }  
-                },
-                {
-                  label: 'Внешний плей',
-                  click: () => {
-                    win.webContents.send('video-play');
-                  }
-                },
-                {
-                  label: 'Внешний пауза',
-                  click: () => {
-                    win.webContents.send('video-pause');
-                  }
-                }
-            ]
+          }).catch(err => {
+            console.error(err);
+          });
         }
-      ];
-      
+      },
+      {
+        label: 'Открыть файл с сервера',
+        click: () => {
+          createChildWindow();
+        }
+      },
+      { 
+        label: 'Закрыть файл',
+        click: () => {
+          win.webContents.send('reset-player');
+          sendMessage('reset')
+        } 
+      },
+      { type: 'separator' },
+      { label: 'Выход', role: 'quit' }
+    ]
+  },
+  {
+    label: 'Плеер',
+    submenu: [
+      {
+        label: 'Плей/Пауза',
+        accelerator: 'Space',
+        click: () =>{
+          win.webContents.send('video-toggle');
+        }
+      },
+      {
+        label: 'Вперёд',
+        accelerator: 'Right',
+        click: () => {
+          win.webContents.send('video-forward');
+          sendMessage('forward');
+        }
+      },
+      {
+        label: 'Назад',
+        accelerator: 'Left',
+        click: () => {
+          win.webContents.send('video-backward');
+          sendMessage('backward');
+        }
+      },
+      {type: 'separator'},
+      {
+        label: 'Полноэкранный режим',
+        accelerator: 'f',
+        click: () => {
+          console.log('full');
+          win.webContents.send('videoscreen-toggle');
+        }
+      }
+    ]
+  },
+  {
+      label: 'Комната',
+      submenu:[
+          {
+            label: 'Создать комнату',
+            click: () => {
+              initServer();
+            }
+          },
+          {
+            label: 'Подключится к комнате',
+            click: () => {
+              initClient(win, settings.getSync('socket_server'));
+            }
+          },
+          {type: 'separator'},
+          {
+            label: 'Адрес сервера с видео',
+            click: () => {
+              prompt({
+                title: 'Введите ссылку',
+                label: 'Адрес сервера с видео',
+                type: 'input',
+                value: settings.getSync('video_server'),
+              }).then((r) => {
+                if (r === null) {
+                  console.log('Ссылка не введена');
+                } else {
+                  console.log('Введенная ссылка:', r);
+                  settings.set('video_server', r);
+                }
+              }).catch(console.error);
+            }
+          },
+          {
+            label: 'Адрес сервера с сокетом',
+            click: () => {
+              prompt({
+                title: 'Введите ссылку',
+                label: 'Адрес сервера с сокетом',
+                type: 'input',
+                value: settings.getSync('socket_server'),
+              }).then((r) => {
+                if (r === null) {
+                  console.log('Ссылка не введена');
+                } else {
+                  console.log('Введенная ссылка:', r);
+                  settings.set('socket_server', r);
+                }
+              }).catch(console.error);
+            }
+          }
+      ]
+  },
+  {
+      label: 'Разработка',
+      submenu:[
+          {
+            label: 'Показать консоль',
+            click: () => {
+                win.webContents.openDevTools();
+            }  
+          },
+          {
+            label: 'Внешний плей',
+            click: () => {
+              win.webContents.send('video-play');
+            }
+          },
+          {
+            label: 'Внешний пауза',
+            click: () => {
+              win.webContents.send('video-pause');
+            }
+          }
+      ]
+  }
+  ];
+    
+  const menu = Menu.buildFromTemplate(menuTemplate);
+  Menu.setApplicationMenu(menu);
 
-    const menu = Menu.buildFromTemplate(menuTemplate);
-    Menu.setApplicationMenu(menu);
-
-    //win.webContents.openDevTools();
-
-    win.on('closed', () => {
-        win = null
+  //win.webContents.openDevTools();
+  
+  win.on('close', (e) => {
+    e.preventDefault();
+    const choice = dialog.showMessageBoxSync(win, {
+      type: 'question',
+      buttons: ['Нет', 'Да'],
+      title: 'Подтверждение закрытия',
+      message: 'Вы уверены, что хотите закрыть приложение?'
     });
+
+    if (choice === 1) {
+      sendMessage('pause');
+      win.destroy();
+    }
+  });
+
+  win.on('closed', () => {
+      win = null
+  });
 }
 
 function createChildWindow() {
@@ -223,7 +228,7 @@ function createChildWindow() {
   
   childWindow.loadFile('index2.html');
   //childWindow.openDevTools();
-  const link = video_server.concat('/api/videos')
+  const link = settings.getSync('video_server').concat('/api/videos')
   try {
     fetch(link)
       .then(response => response.json())
@@ -248,7 +253,7 @@ ipc.on('menu', function(event, arg){
 });
 
 ipc.on('select-media', function(event,arg){
-  const link = video_server.concat('/videos/', arg);
+  const link = settings.getSync('video_server').concat('/videos/', arg);
   win.webContents.send('opened-file', link);
   sendMessage('link-'+link);
 })

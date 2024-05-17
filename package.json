@@ -23,8 +23,8 @@
     "videojs-youtube": "^3.0.1"
   },
   "build": {
-    "appId": "com.example.my-electron-app",
-    "productName": "My Electron App",
+    "appId": "com.example.video-player-electron",
+    "productName": "video-player-electron",
     "directories": {
       "output": "dist"
     },
@@ -44,6 +44,10 @@
         "nsis",
         "portable"
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }

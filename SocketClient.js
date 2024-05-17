@@ -41,6 +41,9 @@ function initClient(win, server){
                 case 'backward':
                     win.webContents.send('video-backward');
                     break;
+                case 'reset':
+                    win.webContents.send('reset-player');
+                    break;
                 default:
                     if (message.startsWith('st-')) {
                         const currentTimeStr = message.slice(3);
