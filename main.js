@@ -199,7 +199,7 @@ function createWindow() {
     const menu = Menu.buildFromTemplate(menuTemplate);
     Menu.setApplicationMenu(menu);
 
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
     win.on('closed', () => {
         win = null
@@ -221,7 +221,7 @@ function createChildWindow() {
   })
   
   childWindow.loadFile('index2.html');
-  childWindow.openDevTools();
+  //childWindow.openDevTools();
   const link = video_server.concat('/api/videos')
   try {
     fetch(link)
@@ -249,6 +249,7 @@ ipc.on('menu', function(event, arg){
 ipc.on('select-media', function(event,arg){
   const link = video_server.concat('/videos/', arg);
   win.webContents.send('opened-file', link);
+  //sendMessage('link-'+link);
 })
 
 app.on('ready', createWindow);
