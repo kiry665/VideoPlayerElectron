@@ -1,15 +1,33 @@
 const electron = require("electron");
-const prompt = require('electron-prompt');
-const app = electron.app;
-const BrowserWindow = electron.BrowserWindow;
-const {Menu} = require('electron');
+const ipc = electron.ipcMain;
+const {Menu, dialog, BrowserWindow, app} = require('electron');
 const path = require('path');
 const url = require('url');
 const { initServer } = require("./SocketServer");
 const { initClient, sendMessage } = require("./SocketClient");
-const { type } = require("os");
-const ipc = electron.ipcMain;
-const dialog = require('electron').dialog;
+const settings = require('electron-settings');
+const prompt = require('electron-prompt');
+
+settings.configure({ fileName: 'settings.json' });
+
+if (!settings.has('video_server')) {
+  settings.set('video_server', 'http://localhost:3001');
+  console.log('Установлено значение по умолчанию для video_server');
+}
+if(!settings.has('socket_server')){
+  settings.set('socket_server', 'http://localhost:3000');
+  console.log('Установлено значение по умолчанию для socket_server');
+}
+
+let video_server;
+settings.get('video_server').then(result => {
+  video_server = result;
+});
+
+let socket_server;
+settings.get('socket_server').then(result => {
+  socket_server = result;
+});
 
 let win;
 
@@ -20,7 +38,8 @@ function createWindow() {
         height: 600,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false // очень важная хрень!!!
+            contextIsolation: false, // очень важная хрень!!!
+            enableRemoteModule: true
         }
     });
 
@@ -48,22 +67,7 @@ function createWindow() {
             {
               label: 'Открыть файл с сервера',
               click: () => {
-                prompt({
-                  title: 'Введите ссылку',
-                  label: 'Ссылка:',
-                  value: 'http://localhost:3001/videos/',
-                  inputAttrs: {
-                    type: 'url'
-                  },
-                  type: 'input'
-                }).then((result) => {
-                  if (result === null) {
-                    console.log('Ссылка не введена');
-                  } else {
-                    console.log('Введенная ссылка:', result);
-                    win.webContents.send('opened-file', result)
-                  }
-                }).catch(console.error);                
+                createChildWindow();
               }
             },
             { 
@@ -124,7 +128,42 @@ function createWindow() {
                 {
                   label: 'Подключится к комнате',
                   click: () => {
-                    initClient(win);
+                    initClient(win, socket_server);
+                  }
+                },
+                {type: 'separator'},
+                {
+                  label: 'Адрес сервера с видео',
+                  click: () => {
+                    prompt({
+                      title: 'Введите ссылку',
+                      label: 'Ссылка:',
+                      type: 'input'
+                    }).then((r) => {
+                      if (r === null) {
+                        console.log('Ссылка не введена');
+                      } else {
+                        console.log('Введенная ссылка:', r);
+                        settings.set('video_server', r);
+                      }
+                    }).catch(console.error);
+                  }
+                },
+                {
+                  label: 'Адрес сервера с сокетом',
+                  click: () => {
+                    prompt({
+                      title: 'Введите ссылку',
+                      label: 'Ссылка:',
+                      type: 'input'
+                    }).then((r) => {
+                      if (r === null) {
+                        console.log('Ссылка не введена');
+                      } else {
+                        console.log('Введенная ссылка:', r);
+                        settings.set('socket_server', r);
+                      }
+                    }).catch(console.error);
                   }
                 }
             ]
@@ -165,23 +204,54 @@ function createWindow() {
     });
 }
 
+function createChildWindow() {
+  let childWindow = new BrowserWindow({
+    width: 400,
+    height: 300,
+    parent: win,
+    modal: true,
+    autoHideMenuBar: true,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false, // очень важная хрень!!!
+      enableRemoteModule: true
+    }
+  })
+  
+  childWindow.loadFile('index2.html');
+  childWindow.openDevTools();
+  const link = video_server.concat('/api/videos')
+  try {
+    fetch(link)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        childWindow.webContents.send('set-media', data);
+      })
+      .catch(error => {
+        console.error('Ошибка получения данных:', error);
+      });
+  } catch (error) {
+    console.error('Ошибка при выполнении fetch:', error);
+  }
+}
+
 ipc.on('socket', function(event, arg){
   sendMessage(arg);
 });
 
 ipc.on('menu', function(event, arg){
   win.setMenuBarVisibility(arg);
+});
+
+ipc.on('select-media', function(event,arg){
+  const link = video_server.concat('/videos/', arg);
+  win.webContents.send('opened-file', link);
 })
 
 app.on('ready', createWindow);
 
-let port = 3000; // Порт по умолчанию
-if (process.argv.length > 2) {
-    const argPort = parseInt(process.argv[2]);
-    if (!isNaN(argPort)) {
-        port = argPort;
-    }
-}
+let port = 3000;
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

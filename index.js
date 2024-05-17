@@ -1,9 +1,6 @@
 const ipc = require('electron').ipcRenderer;
 const videojs = require('video.js');
-const { sendMessage } = require('./SocketClient');
 var videoPlayer = videojs('videoPlayer');
-
-
 
 var isProgrammaticSeek = false;
 var isProgrammaticPlayPause = false;
@@ -11,7 +8,7 @@ var isFileOpen = false;
 
 ipc.on('opened-file', function(event,arg){
     console.log(arg);
-    videoPlayer.src({src: arg});
+    videoPlayer.src({src: arg, type: 'video/mp4'});
     videoPlayer.load();
     isFileOpen = true;
 })

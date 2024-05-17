@@ -6,9 +6,9 @@ const client = module.exports = {
     socket : null
 };
 
-function initClient(win){
+function initClient(win, server){
     return new Promise((resolve, reject) => {
-        client.socket = io('http://localhost:3000');
+        client.socket = io(server);
         
         client.socket.on('connect', () => {
             console.log('Client: Connected to server');

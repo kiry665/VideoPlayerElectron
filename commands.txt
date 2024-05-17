@@ -1,0 +1,1 @@
+for /R %f IN (*.mkv) DO (ffmpeg -i "%f" -map 0 -c copy -c:a aac "%~nf.mp4")
