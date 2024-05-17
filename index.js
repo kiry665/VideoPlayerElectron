@@ -79,6 +79,15 @@ ipc.on('videoscreen-toggle', function(event){
     }
 });
 
+ipc.on('status-text', function(event,arg){
+    document.getElementById('displayText').innerText = arg;
+    console.log('text');
+});
+
+ipc.on('status-ready', function(event){
+    document.querySelector('.circle').style.backgroundColor = 'green';
+});
+
 videoPlayer.on('play', function() {
     
     if(isProgrammaticPlayPause){

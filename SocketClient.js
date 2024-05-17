@@ -1,4 +1,6 @@
 const io = require('socket.io-client');
+const settings = require('electron-settings');
+settings.configure({ fileName: 'settings.json' });
 
 const client = module.exports = { 
     initClient,
@@ -18,6 +20,7 @@ function initClient(win, server){
 
         client.socket.on('connect', () => {
             console.log('Client: Connected to server');
+            win.webContents.send('status-ready');
             resolve();
         });
 
@@ -51,7 +54,10 @@ function initClient(win, server){
                         win.webContents.send('video-setTime', currentTime);
                     }else if(message.startsWith('link-')){
                         const link = message.slice(5);
-                        win.webContents.send('opened-file', link);
+                        let video_server = settings.getSync('video_server');
+                        const fullUrl = `${video_server}/videos/${link}`;
+                        console.log(fullUrl);
+                        win.webContents.send('opened-file', fullUrl);
                     }
                     break;
             }

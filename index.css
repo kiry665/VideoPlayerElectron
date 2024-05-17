@@ -1,6 +1,33 @@
 #videoPlayer {
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 20px);
+}
+
+.statusBar {
+    position: relative;
+    height: 20px;
+    width: 100%;
+    background-color: #ffffff;
+}
+
+.text {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #000000;
+}
+
+.circle {
+    position: absolute;
+    right: 10px;
+    top: 47%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ff0000;
 }
 
 :focus {

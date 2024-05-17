@@ -34,7 +34,7 @@ function createWindow() {
   });
 
   win.loadFile('index.html');
-
+  
   const menuTemplate = [
   {
     label: 'Файл',
@@ -156,6 +156,7 @@ function createWindow() {
                   
                 } else {
                   settings.set('socket_server', r);
+                  win.webContents.send('status-text', r);
                 }
               }).catch(console.error);
             }
@@ -177,9 +178,11 @@ function createWindow() {
     
   const menu = Menu.buildFromTemplate(menuTemplate);
   Menu.setApplicationMenu(menu);
-
-  //win.webContents.openDevTools();
   
+  win.once('ready-to-show', () => {
+    win.webContents.send('status-text', settings.getSync('socket_server'));
+  })
+
   win.on('close', (e) => {
     e.preventDefault();
     const choice = dialog.showMessageBoxSync(win, {
@@ -194,6 +197,7 @@ function createWindow() {
       win.destroy();
     }
   });
+
 
   win.on('closed', () => {
       win = null
@@ -247,7 +251,7 @@ ipc.on('menu', function(event, arg){
 ipc.on('select-media', function(event,arg){
   const link = settings.getSync('video_server').concat('/videos/', arg);
   win.webContents.send('opened-file', link);
-  sendMessage('link-'+link);
+  sendMessage('link-'+arg);
 })
 
 app.on('ready', createWindow);
