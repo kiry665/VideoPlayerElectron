@@ -201,28 +201,32 @@ function createWindow() {
 }
 
 function createChildWindow() {
-  let childWindow = new BrowserWindow({
-    width: 400,
-    height: 300,
-    parent: win,
-    modal: true,
-    autoHideMenuBar: true,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false, // очень важная хрень!!!
-      enableRemoteModule: true
-    }
-  })
-  
-  childWindow.loadFile('index2.html');
-  //childWindow.openDevTools();
+
   const link = settings.getSync('video_server').concat('/api/videos')
+
   try {
     fetch(link)
       .then(response => response.json())
       .then(data => {
         console.log(data);
-        childWindow.webContents.send('set-media', data);
+
+        let childWindow = new BrowserWindow({
+          width: 400,
+          height: 300,
+          parent: win,
+          modal: true,
+          autoHideMenuBar: true,
+          webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            enableRemoteModule: true
+          }
+        });
+
+        childWindow.loadFile('index2.html');
+        childWindow.webContents.on('did-finish-load', () => {
+          childWindow.webContents.send('set-media', data);
+        });
       })
       .catch(error => {
         console.error('Ошибка получения данных:', error);
