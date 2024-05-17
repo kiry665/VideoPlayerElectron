@@ -112,6 +112,7 @@ function createWindow() {
               accelerator: 'f',
               click: () => {
                 console.log('full');
+                win.webContents.send('videoscreen-toggle');
               }
             }
           ]
@@ -249,7 +250,7 @@ ipc.on('menu', function(event, arg){
 ipc.on('select-media', function(event,arg){
   const link = video_server.concat('/videos/', arg);
   win.webContents.send('opened-file', link);
-  //sendMessage('link-'+link);
+  sendMessage('link-'+link);
 })
 
 app.on('ready', createWindow);

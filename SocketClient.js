@@ -8,8 +8,14 @@ const client = module.exports = {
 
 function initClient(win, server){
     return new Promise((resolve, reject) => {
-        client.socket = io(server);
         
+        if (client.socket) {
+            console.log('Client: Socket already initialized');
+            return resolve();
+        }
+
+        client.socket = io(server);
+
         client.socket.on('connect', () => {
             console.log('Client: Connected to server');
             resolve();
@@ -40,6 +46,9 @@ function initClient(win, server){
                         const currentTimeStr = message.slice(3);
                         const currentTime = parseFloat(currentTimeStr);
                         win.webContents.send('video-setTime', currentTime);
+                    }else if(message.startsWith('link-')){
+                        const link = message.slice(5);
+                        win.webContents.send('opened-file', link);
                     }
                     break;
             }

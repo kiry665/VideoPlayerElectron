@@ -11,7 +11,7 @@ ipc.on('opened-file', function(event,arg){
     videoPlayer.src({src: arg, type: 'video/mp4'});
     videoPlayer.load();
     isFileOpen = true;
-})
+});
 
 ipc.on('open-url', function(event, arg){
     
@@ -19,13 +19,13 @@ ipc.on('open-url', function(event, arg){
     videoPlayer.src({src: arg, type: 'video/youtube'});
     videoPlayer.load();
     isFileOpen = true;
-})
+});
 
 ipc.on('reset-player', function(event){
     
     videoPlayer.reset();
     isFileOpen = false;
-})
+});
 
 ipc.on('video-toggle', function(event){
     
@@ -34,19 +34,19 @@ ipc.on('video-toggle', function(event){
     } else {
         videoPlayer.pause();
     }
-})
+});
 
 ipc.on('video-play', function(event){
     
     isProgrammaticPlayPause = true;
     videoPlayer.play();
-})
+});
 
 ipc.on('video-pause', function(event){
     
     isProgrammaticPlayPause = true;
     videoPlayer.pause();
-})
+});
 
 ipc.on('video-forward', function(event){
     
@@ -55,7 +55,7 @@ ipc.on('video-forward', function(event){
     var duration = videoPlayer.duration();
     var newTime = currentTime + 10;
     videoPlayer.currentTime(Math.min(newTime, duration));
-})
+});
 
 ipc.on('video-backward', function(event){
     
@@ -63,13 +63,21 @@ ipc.on('video-backward', function(event){
     var currentTime = videoPlayer.currentTime();
     var newTime = currentTime - 10;
     videoPlayer.currentTime(Math.max(newTime, 0));
-})
+});
 
 ipc.on('video-setTime', function(event,arg){
     
     isProgrammaticSeek = true;
     videoPlayer.currentTime(arg);
-})
+});
+
+ipc.on('videoscreen-toggle', function(event){
+    if(videoPlayer.isFullscreen()){
+        videoPlayer.exitFullscreen();
+    }else{
+        videoPlayer.requestFullscreen();
+    }
+});
 
 videoPlayer.on('play', function() {
     
@@ -109,4 +117,4 @@ videoPlayer.on('fullscreenchange', function(event) {
     } else {
       ipc.send('menu', true);
     }
-  });
+});
