@@ -138,7 +138,8 @@ function createWindow() {
                     prompt({
                       title: 'Введите ссылку',
                       label: 'Ссылка:',
-                      type: 'input'
+                      type: 'input',
+                      value: video_server,
                     }).then((r) => {
                       if (r === null) {
                         console.log('Ссылка не введена');
@@ -155,7 +156,8 @@ function createWindow() {
                     prompt({
                       title: 'Введите ссылку',
                       label: 'Ссылка:',
-                      type: 'input'
+                      type: 'input',
+                      value: socket_server,
                     }).then((r) => {
                       if (r === null) {
                         console.log('Ссылка не введена');
